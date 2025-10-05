@@ -1,136 +1,98 @@
-<?php # Script 3.1 - db_sessions.inc.php
-
-/* 
- *	This page creates the functional
- *	interface for storing session data
- *	in a database.
- *	This page also starts the session.
+<?php
+/*
+ * Custom session handler using MySQL
+ * Docker-ready version for Meesto
  */
 
-// Global variable used for the database 
-// connections in all session functions:
 $dbc = NULL;
 
-// Define the open_session() function:
-// This function takes no arguments.
-// This function should open the database connection.
+// Open connection
 function open_session() {
+    global $dbc;
 
-	global $dbc;
-	
-	// Connect to the database.
-	DEFINE('DB_USER', 'root');
-	DEFINE ('DB_PASSWORD', '');
-	DEFINE ('DB_HOST', 'localhost');
-	DEFINE ('DB_NAME', 'meesto');
-	
-	$dbc = mysql_connect (DB_HOST, DB_USER, DB_PASSWORD) OR die ('Could not connect to MySQL: ' . mysql_error() );
-	
-	@mysql_select_db (DB_NAME, $dbc) OR die ('Could not select the database: ' . mysql_error() );
-	
-	session_cache_expire(30);
-	
-	return true;
+    $dbc = mysqli_connect('db', 'meesto_user', 'meesto_pass', 'meesto');
+    if (!$dbc) {
+        error_log("Session DB connect error: " . mysqli_connect_error());
+        return false;
+    }
 
-} // End of open_session() function.
- 
-// Define the close_session() function:
-// This function takes no arguments.
-// This function closes the database connection.
+    session_cache_expire(30);
+    return true;
+}
+
+// Close connection
 function close_session() {
+    global $dbc;
+    return mysqli_close($dbc);
+}
 
-	global $dbc;
-	
-	return mysql_close($dbc);
-	
-} // End of close_session() function.
-
-// Define the read_session() function:
-// This function takes one argument: the session ID.
-// This function retrieves the session data.
+// Read session
 function read_session($sid) {
+    global $dbc;
+    $sid = mysqli_real_escape_string($dbc, $sid);
+    $q = "SELECT data FROM sessions WHERE id='$sid' LIMIT 1";
+    $r = mysqli_query($dbc, $q);
 
-	global $dbc;
+    if ($r && mysqli_num_rows($r) === 1) {
+        list($data) = mysqli_fetch_array($r, MYSQLI_NUM);
+        return $data;
+    }
+    return '';
+}
 
- 	// Query the database:
- 	$q = sprintf('SELECT data FROM sessions WHERE id="%s"', mysql_real_escape_string($sid, $dbc)); 
-	$r = mysql_query($q, $dbc);
-	
-	// Retrieve the results:
-	if (mysql_num_rows($r) == 1) {
-	
-		list($data) = mysql_fetch_array($r, MYSQL_NUM);
-		
-		// Return the data:
-		return $data;
-
-	} else { // Return an empty string.
-		return '';
-	}
-	
-} // End of read_session() function.
-
-// Define the write_session() function:
-// This function takes two arguments: 
-// the session ID and the session data.
+// Write session
 function write_session($sid, $data) {
+    global $dbc;
+    $sid = mysqli_real_escape_string($dbc, $sid);
+    $data = mysqli_real_escape_string($dbc, $data);
 
-	global $dbc;
+    $q = "REPLACE INTO sessions (id, data, last_accessed) VALUES ('$sid', '$data', NOW())";
+    if (!mysqli_query($dbc, $q)) {
+        error_log("Session write error: " . mysqli_error($dbc));
+        return false;
+    }
 
-	// Store in the database:
- 	$q = sprintf('REPLACE INTO sessions (id, data) VALUES ("%s", "%s")',  mysql_real_escape_string($sid, $dbc), mysql_real_escape_string($data, $dbc)); 
-	$r = mysql_query($q, $dbc);
-	
-	$q = sprintf('UPDATE sessions SET u_id="%d" WHERE id="%s"', (int) $_SESSION['user_id'],  mysql_real_escape_string($sid, $dbc)); 
-	$r = mysql_query($q, $dbc);
-	
-	$q = sprintf('UPDATE sessions SET client="%s" WHERE id="%s"', $_SESSION['client'],  mysql_real_escape_string($sid, $dbc)); 
-	$r = mysql_query($q, $dbc);
+    if (isset($_SESSION['user_id'])) {
+        $uid = (int)$_SESSION['user_id'];
+        mysqli_query($dbc, "UPDATE sessions SET u_id=$uid WHERE id='$sid'");
+    }
 
-	return mysql_affected_rows($dbc);
+    if (isset($_SESSION['client'])) {
+        $client = mysqli_real_escape_string($dbc, $_SESSION['client']);
+        mysqli_query($dbc, "UPDATE sessions SET client='$client' WHERE id='$sid'");
+    }
 
-} // End of write_session() function.
+    return true;
+}
 
-// Define the destroy_session() function:
-// This function takes one argument: the session ID.
+// Destroy session
 function destroy_session($sid) {
+    global $dbc;
+    $sid = mysqli_real_escape_string($dbc, $sid);
+    mysqli_query($dbc, "DELETE FROM sessions WHERE id='$sid'");
+    $_SESSION = array();
+    return true;
+}
 
-	global $dbc;
-
-	// Delete from the database:
- 	$q = sprintf('DELETE FROM sessions WHERE id="%s"',  mysql_real_escape_string($sid, $dbc)); 
-	$r = mysql_query($q, $dbc);
-	
-	// Clear the $_SESSION array:
-	$_SESSION = array();
-
-	return mysql_affected_rows($dbc);
-
-} // End of destroy_session() function.
-
-// Define the clean_session() function:
-// This function takes one argument: a value in seconds.
+// Clean old sessions
 function clean_session($expire) {
+    global $dbc;
+    $expire = (int)$expire;
+    $q = "DELETE FROM sessions WHERE DATE_ADD(last_accessed, INTERVAL $expire SECOND) < NOW()";
+    mysqli_query($dbc, $q);
+    return true;
+}
 
-	global $dbc;
+// Register handlers
+session_set_save_handler(
+    'open_session',
+    'close_session',
+    'read_session',
+    'write_session',
+    'destroy_session',
+    'clean_session'
+);
 
-	// Delete old sessions:
- 	$q = sprintf('DELETE FROM sessions WHERE DATE_ADD(last_accessed, INTERVAL %d SECOND) < NOW()', (int) $expire); 
-	$r = mysql_query($q, $dbc);
-
-	return mysql_affected_rows($dbc);
-
-} // End of clean_session() function.
-
-# **************************** #
-# ***** END OF FUNCTIONS ***** #
-# **************************** #
-
-// Declare the functions to use:
-session_set_save_handler('open_session', 'close_session', 'read_session', 'write_session', 'destroy_session', 'clean_session');
-
-// Make whatever other changes to the session settings.
-
-// Start the session:
+// Start session
 session_start();
 ?>

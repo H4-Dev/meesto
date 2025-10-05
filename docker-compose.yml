@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: meesto_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: meesto
+      MYSQL_USER: meesto_user
+      MYSQL_PASSWORD: meesto_pass
+    ports:
+      - "3307:3306"  # Host 3307 → Container 3306
+    volumes:
+      - ./databases.txt:/docker-entrypoint-initdb.d/init.sql  # Use your SQL schema file
+      - meesto_mysql_data:/var/lib/mysql
+    networks:
+      - meesto_network
+
+  web:
+    build: .
+    container_name: meesto_web
+    restart: always
+    ports:
+      - "8083:80"  # Host 8083 → Container 80
+    volumes:
+      - ./httpdocs:/var/www/html/httpdocs
+      - ./externals:/var/www/html/externals
+      - ./uploads:/var/www/html/uploads
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html/httpdocs
+    depends_on:
+      - db
+    networks:
+      - meesto_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: meesto_phpmyadmin
+    restart: always
+    ports:
+      - "8084:80"  # Host 8084 → Container 80
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    depends_on:
+      - db
+    networks:
+      - meesto_network
+
+volumes:
+  meesto_mysql_data:
+
+networks:
+  meesto_network:
+    driver: bridge
