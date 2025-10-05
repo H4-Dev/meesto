@@ -20,11 +20,11 @@ echo '<div align="left" style="margin-left: 24px;">
 			<span class="st_sharethis_button" displayText="Share"></span>
 		</td></tr></table>
 	</div>
-	
+
 	<div align="left" style="margin-top: 14px; border-bottom: 2px solid #C5C5C5; padding-bottom: 16px;">
 		<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top" style="padding-right: 12px;"><img src="'.$baseincpat.'images/logo.png" /></td><td align="left" valign="top">
 			<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">
-				<div align="left" class="p24"><span style="font-size: 36px;">plans to be</span> an Nonprofit Open Source cloud-based <br />framework where you can safely and comfortably store, <br />manipulate, and share your personal data.</div>
+				<div align="left" class="p24"><span style="font-size: 36px;">plans to be</span> a Nonprofit Open Source cloud-based <br />framework where you can safely and comfortably store, <br />manipulate, and share your personal data.</div>
 				<div align="left" style="margin-top: 12px;">
 					<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top" width="200px">Nonprofit so we never lose our focus on respecting you and respecting your data.</td><td align="left" valign="top" width="190px" style="padding-left: 18px;">Open Source so everyone can build and create a better Meesto together.</td><td align="left" valign="top" width="200px" style="padding-left: 24px;">Cloud-based so you can access your data anytime, anywhere.</td></tr></table>
 				</div>
@@ -37,7 +37,7 @@ echo '<div align="left" style="margin-left: 24px;">
 			</td></tr></table>
 		</td></tr></table>
 	</div>
-	
+
 	<div align="left" style="margin-top: 18px; border-bottom: 2px solid #C5C5C5; padding-bottom: 16px;">
 		<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top" style="padding-right: 12px;"><img src="'.$baseincpat.'images/logo.png" /></td><td align="left" valign="top">
 			<div align="left" style="font-size: 36px;">needs your help...</div>
@@ -54,7 +54,7 @@ echo '<div align="left" style="margin-left: 24px;">
 			</div>
 		</td></tr></table>
 	</div>
-	
+
 	<div align="left" style="margin-top: 18px; border-bottom: 2px solid #C5C5C5; padding-bottom: 16px;">
 		<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top" style="padding-right: 12px;"><img src="'.$baseincpat.'images/logo.png" /></td><td align="left" valign="top">
 			<div align="left" class="p24"><span style="font-size: 36px;">is</span> a social networking tool where you control your data and you control the site (built on Open Source and Nonprofit ideals).</div>
@@ -67,7 +67,7 @@ echo '<div align="left" style="margin-left: 24px;">
 			</div>
 		</td></tr></table>
 	</div>
-	
+
 	<div align="left" style="margin-top: 18px; border-bottom: 2px solid #C5C5C5; padding-bottom: 16px;">
 		<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="top" style="padding-right: 12px;"><img src="'.$baseincpat.'images/logo.png" /></td><td align="right" valign="center">
 				<table cellpadding="0" cellspacing="0"><tr><td align="left" valign="center" style="font-size: 36px;">does not believe in fine print...</td><td align="right" valign="center" style="padding-left: 18px;">
@@ -75,8 +75,8 @@ echo '<div align="left" style="margin-left: 24px;">
 				</td></tr></table>
 		</td></tr></table>
 	</div>
-		
-	
+
+
 </div>';
 
 
